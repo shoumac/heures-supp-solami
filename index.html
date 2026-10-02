@@ -203,3 +203,37 @@ afficher();
 
 </body>
 </html>
+<button onclick="exportMail()">
+📧 Exporter le récapitulatif
+</button>
+function exportMail(){
+
+let texte = "Récapitulatif heures supplémentaires :\n\n";
+
+donnees.forEach(ligne => {
+
+texte +=
+ligne.date +
+" | " +
+ligne.chantier +
+" | HS : " +
+ligne.hs.toFixed(2) +
+"h | KM : " +
+ligne.km +
+"\n";
+
+});
+
+texte += "\nTotal HS : " +
+document.getElementById("totalHS").innerText +
+"h";
+
+texte += "\nTotal KM : " +
+document.getElementById("totalKM").innerText +
+" km";
+
+window.location.href =
+"mailto:?subject=Récap Heures Sup&body=" +
+encodeURIComponent(texte);
+
+}
