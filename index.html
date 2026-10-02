@@ -14,7 +14,7 @@ padding:15px;
 }
 
 .container{
-max-width:700px;
+max-width:900px;
 margin:auto;
 }
 
@@ -42,14 +42,34 @@ border-radius:8px;
 }
 
 button{
-width:100%;
-padding:12px;
-background:#1f4e78;
-color:white;
+padding:10px;
 border:none;
 border-radius:8px;
-font-size:16px;
 font-weight:bold;
+cursor:pointer;
+margin:2px;
+}
+
+.btn-ajout{
+background:#1f4e78;
+color:white;
+width:100%;
+}
+
+.btn-delete{
+background:#dc3545;
+color:white;
+}
+
+.btn-edit{
+background:#f0ad4e;
+color:white;
+}
+
+.btn-mail{
+background:#198754;
+color:white;
+width:100%;
 }
 
 table{
@@ -79,6 +99,9 @@ color:white;
 
 <div class="card">
 
+<label>Technicien</label>
+<input type="text" id="technicien" value="Joan">
+
 <label>Date</label>
 <input type="date" id="date">
 
@@ -97,7 +120,9 @@ color:white;
 <label>Kilomètres</label>
 <input type="number" id="km">
 
-<button onclick="ajouter()">Ajouter</button>
+<button class="btn-ajout" onclick="ajouter()">
+➕ Ajouter
+</button>
 
 </div>
 
@@ -111,19 +136,29 @@ color:white;
 <thead>
 <tr>
 <th>Date</th>
+<th>Technicien</th>
 <th>HS</th>
 <th>Km</th>
 <th>Chantier</th>
 <th>Action</th>
 </tr>
 </thead>
-<tbody id="tableau">
-</tbody>
+<tbody id="tableau"></tbody>
 </table>
 </div>
+
+<div class="card">
+<button class="btn-mail" onclick="exportMail()">
+📧 Exporter le récapitulatif
+</button>
+</div>
+
+</div>
+
 <script>
 
 let donnees = JSON.parse(localStorage.getItem("solami")) || [];
+let edition = -1;
 
 function calculHS(debut, fin, pause){
 
@@ -143,6 +178,7 @@ return Math.max(0, heures - 7);
 
 function ajouter(){
 
+let technicien = document.getElementById("technicien").value;
 let date = document.getElementById("date").value;
 let chantier = document.getElementById("chantier").value;
 let debut = document.getElementById("debut").value;
@@ -150,31 +186,112 @@ let fin = document.getElementById("fin").value;
 let pause = document.getElementById("pause").value;
 let km = Number(document.getElementById("km").value || 0);
 
-let hs = calculHS(debut, fin, pause);
+if(!date || !debut || !fin){
+alert("Complète les champs.");
+return;
+}
 
-donnees.push({
+let hs = calculHS(debut,fin,pause);
+
+let ligne = {
+technicien,
 date,
 chantier,
 km,
-hs
-});
+hs,
+debut,
+fin,
+pause
+};
 
-localStorage.setItem(
-"solami",
-JSON.stringify(donnees)
-);
+if(edition >= 0){
+donnees[edition] = ligne;
+edition = -1;
+}else{
+donnees.push(ligne);
+}
+
+localStorage.setItem("solami",JSON.stringify(donnees));
+
+viderFormulaire();
+afficher();
+
+}
+
+function modifier(index){
+
+let ligne = donnees[index];
+
+document.getElementById("technicien").value = ligne.technicien;
+document.getElementById("date").value = ligne.date;
+document.getElementById("chantier").value = ligne.chantier;
+document.getElementById("debut").value = ligne.debut;
+document.getElementById("fin").value = ligne.fin;
+document.getElementById("pause").value = ligne.pause;
+document.getElementById("km").value = ligne.km;
+
+edition = index;
+
+}
+
+function supprimer(index){
+
+if(confirm("Supprimer cette ligne ?")){
+
+donnees.splice(index,1);
+
+localStorage.setItem("solami",
+JSON.stringify(donnees));
 
 afficher();
 
 }
 
+}
+
+function viderFormulaire(){
+
+document.getElementById("date").value="";
+document.getElementById("chantier").value="";
+document.getElementById("debut").value="";
+document.getElementById("fin").value="";
+document.getElementById("km").value="";
+
+}
+
+function exportMail(){
+
+let texte = "Récapitulatif heures supplémentaires\n\n";
+
+donnees.forEach(ligne => {
+
+texte +=
+ligne.date +
+" | " +
+ligne.technicien +
+" | " +
+ligne.chantier +
+" | HS : " +
+ligne.hs.toFixed(2) +
+"h | KM : " +
+ligne.km +
+"\n";
+
+});
+
+window.location.href =
+"mailto:?subject=Récap Heures Sup&body=" +
+encodeURIComponent(texte);
+
+}
+
 function afficher(){
 
-let html = "";
-let totalHS = 0;
-let totalKM = 0;
+let html="";
+let totalHS=0;
+let totalKM=0;
 
-donnees.forEach((ligne,index) => {
+donnees.forEach((ligne,index)=>{
 
 totalHS += Number(ligne.hs);
 totalKM += Number(ligne.km);
@@ -182,10 +299,14 @@ totalKM += Number(ligne.km);
 html += `
 <tr>
 <td>${ligne.date}</td>
+<td>${ligne.technicien}</td>
 <td>${ligne.hs.toFixed(2)}</td>
 <td>${ligne.km}</td>
 <td>${ligne.chantier}</td>
-<td><button onclick="supprimer(${index})">🗑️</button></td>
+<td>
+<button class="btn-edit" onclick="modifier(${index})">✏️</button>
+<button class="btn-delete" onclick="supprimer(${index})">🗑️</button>
+</td>
 </tr>
 `;
 
@@ -196,35 +317,10 @@ document.getElementById("totalHS").innerText = totalHS.toFixed(2);
 document.getElementById("totalKM").innerText = totalKM;
 
 }
-<button onclick="exportMail()">
-📧 Exporter le récapitulatif
-</button>
 
-<script>
-
-function exportMail(){
-
-let texte = "Récapitulatif heures supplémentaires :\n\n";
-
-donnees.forEach(ligne => {
-
-texte += ligne.date + " | " +
-ligne.chantier + " | HS : " +
-ligne.hs.toFixed(2) +
-"h | KM : " +
-ligne.km + "\n";
-
-});
-
-window.location.href =
-"mailto:?subject=Récap Heures Sup&body=" +
-encodeURIComponent(texte);
-
-}
+afficher();
 
 </script>
-
-</div>
 
 </body>
 </html>
