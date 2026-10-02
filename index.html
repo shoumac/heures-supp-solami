@@ -114,6 +114,7 @@ color:white;
 <th>HS</th>
 <th>Km</th>
 <th>Chantier</th>
+<th>Action</th>
 </tr>
 </thead>
 <tbody id="tableau">
@@ -173,7 +174,7 @@ let html = "";
 let totalHS = 0;
 let totalKM = 0;
 
-donnees.forEach(ligne => {
+donnees.forEach((ligne,index) => {
 
 totalHS += Number(ligne.hs);
 totalKM += Number(ligne.km);
@@ -184,6 +185,7 @@ html += `
 <td>${ligne.hs.toFixed(2)}</td>
 <td>${ligne.km}</td>
 <td>${ligne.chantier}</td>
+<td><button onclick="supprimer(${index})">🗑️</button></td>
 </tr>
 `;
 
@@ -194,8 +196,31 @@ document.getElementById("totalHS").innerText = totalHS.toFixed(2);
 document.getElementById("totalKM").innerText = totalKM;
 
 }
-</script>
-afficher();
+<button onclick="exportMail()">
+📧 Exporter le récapitulatif
+</button>
+
+<script>
+
+function exportMail(){
+
+let texte = "Récapitulatif heures supplémentaires :\n\n";
+
+donnees.forEach(ligne => {
+
+texte += ligne.date + " | " +
+ligne.chantier + " | HS : " +
+ligne.hs.toFixed(2) +
+"h | KM : " +
+ligne.km + "\n";
+
+});
+
+window.location.href =
+"mailto:?subject=Récap Heures Sup&body=" +
+encodeURIComponent(texte);
+
+}
 
 </script>
 
@@ -203,37 +228,3 @@ afficher();
 
 </body>
 </html>
-<button onclick="exportMail()">
-📧 Exporter le récapitulatif
-</button>
-function exportMail(){
-
-let texte = "Récapitulatif heures supplémentaires :\n\n";
-
-donnees.forEach(ligne => {
-
-texte +=
-ligne.date +
-" | " +
-ligne.chantier +
-" | HS : " +
-ligne.hs.toFixed(2) +
-"h | KM : " +
-ligne.km +
-"\n";
-
-});
-
-texte += "\nTotal HS : " +
-document.getElementById("totalHS").innerText +
-"h";
-
-texte += "\nTotal KM : " +
-document.getElementById("totalKM").innerText +
-" km";
-
-window.location.href =
-"mailto:?subject=Récap Heures Sup&body=" +
-encodeURIComponent(texte);
-
-}
