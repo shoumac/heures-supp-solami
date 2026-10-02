@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -150,6 +151,9 @@ color:white;
 <div class="card">
 <button class="btn-mail" onclick="exportMail()">
 📧 Exporter le récapitulatif
+</button>
+<button class="btn-mail" onclick="exportPDF()">
+📄 Export PDF
 </button>
 </div>
 
@@ -317,7 +321,39 @@ document.getElementById("totalHS").innerText = totalHS.toFixed(2);
 document.getElementById("totalKM").innerText = totalKM;
 
 }
+function exportPDF(){
 
+const { jsPDF } = window.jspdf;
+
+const doc = new jsPDF();
+
+doc.setFontSize(16);
+doc.text("Rapport Heures Sup - Joan", 10, 15);
+
+let y = 30;
+
+donnees.forEach((ligne) => {
+
+doc.setFontSize(10);
+
+doc.text(
+`${ligne.date} | ${ligne.technicien} | ${ligne.chantier} | HS : ${ligne.hs.toFixed(2)} h | KM : ${ligne.km}`,
+10,
+y
+);
+
+y += 8;
+
+if(y > 270){
+doc.addPage();
+y = 20;
+}
+
+});
+
+doc.save("Rapport_Heures_Sup.pdf");
+
+}
 afficher();
 
 </script>
