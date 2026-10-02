@@ -1,12 +1,205 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Heures Sup Solami</title>
+
+<style>
+body{
+font-family:Arial,sans-serif;
+background:#f4f6f8;
+margin:0;
+padding:15px;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+h1{
+text-align:center;
+color:#1f4e78;
+}
+
+input{
+width:100%;
+padding:10px;
+margin-top:5px;
+margin-bottom:10px;
+box-sizing:border-box;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#1f4e78;
+color:white;
+border:none;
+border-radius:8px;
+font-size:16px;
+font-weight:bold;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:8px;
+text-align:center;
+font-size:12px;
+}
+
+th{
+background:#1f4e78;
+color:white;
+}
+</style>
 </head>
+
 <body>
-<h1>Application Heures Sup Solami</h1>
-<p>Si tu vois ce texte, l'application fonctionne.</p>
+
+<div class="container">
+
+<h1>Heures Sup Solami</h1>
+
+<div class="card">
+
+<label>Date</label>
+<input type="date" id="date">
+
+<label>Chantier</label>
+<input type="text" id="chantier">
+
+<label>Heure début</label>
+<input type="time" id="debut">
+
+<label>Heure fin</label>
+<input type="time" id="fin">
+
+<label>Pause (minutes)</label>
+<input type="number" id="pause" value="60">
+
+<label>Kilomètres</label>
+<input type="number" id="km">
+
+<button onclick="ajouter()">Ajouter</button>
+
+</div>
+
+<div class="card">
+<h3>Total Heures Supp : <span id="totalHS">0</span> h</h3>
+<h3>Total Km : <span id="totalKM">0</span> km</h3>
+</div>
+
+<div class="card">
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>HS</th>
+<th>Km</th>
+<th>Chantier</th>
+</tr>
+</thead>
+<tbody id="tableau">
+</tbody>
+</table>
+</div>
+<script>
+
+let donnees = JSON.parse(localStorage.getItem("solami")) || [];
+
+function calculHS(debut, fin, pause){
+
+let d = debut.split(":");
+let f = fin.split(":");
+
+let minutes =
+(f[0]*60 + Number(f[1])) -
+(d[0]*60 + Number(d[1])) -
+Number(pause);
+
+let heures = minutes / 60;
+
+return Math.max(0, heures - 7);
+
+}
+
+function ajouter(){
+
+let date = document.getElementById("date").value;
+let chantier = document.getElementById("chantier").value;
+let debut = document.getElementById("debut").value;
+let fin = document.getElementById("fin").value;
+let pause = document.getElementById("pause").value;
+let km = Number(document.getElementById("km").value || 0);
+
+let hs = calculHS(debut, fin, pause);
+
+donnees.push({
+date,
+chantier,
+km,
+hs
+});
+
+localStorage.setItem(
+"solami",
+JSON.stringify(donnees)
+);
+
+afficher();
+
+}
+
+function afficher(){
+
+let html = "";
+let totalHS = 0;
+let totalKM = 0;
+
+donnees.forEach(ligne => {
+
+totalHS += Number(ligne.hs);
+totalKM += Number(ligne.km);
+
+html += `
+<tr>
+<td>${ligne.date}</td>
+<td>${ligne.hs.toFixed(2)}</td>
+<td>${ligne.km}</td>
+<td>${ligne.chantier}</td>
+</tr>
+`;
+
+});
+
+document.getElementById("tableau").innerHTML = html;
+document.getElementById("totalHS").innerText = totalHS.toFixed(2);
+document.getElementById("totalKM").innerText = totalKM;
+
+}
+
+afficher();
+
+</script>
+
+</div>
+
 </body>
 </html>
