@@ -1,78 +1,118 @@
 <!DOCTYPE html>
 <html lang="fr">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <head>
-<link rel="apple-touch-icon" href="logo.png">
-<link rel="icon" type="image/png" href="logo.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Heures Sup Solami</title>
+
+<title>Heures Sup Solami V3</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
-font-family:Arial,sans-serif;
-background:#f4f6f8;
+
+*{
 margin:0;
-padding:15px;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#0f172a;
+color:white;
+padding:20px;
 }
 
 .container{
-max-width:900px;
+max-width:1200px;
 margin:auto;
 }
 
-.card{
-background:white;
-padding:15px;
-border-radius:12px;
-margin-bottom:15px;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
-}
-
-h1{
+.logo{
 text-align:center;
-color:#1f4e78;
+margin-bottom:30px;
 }
 
-input{
-width:100%;
-padding:10px;
-margin-top:5px;
+.logo h1{
+font-size:40px;
+font-weight:700;
+color:#38bdf8;
+}
+
+.logo p{
+color:#94a3b8;
+}
+
+.dashboard{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:25px;
+}
+
+.card{
+background:#1e293b;
+padding:20px;
+border-radius:20px;
+box-shadow:0 0 20px rgba(0,0,0,.3);
+}
+
+.card h3{
+font-size:14px;
+color:#94a3b8;
 margin-bottom:10px;
-box-sizing:border-box;
-border:1px solid #ccc;
-border-radius:8px;
+}
+
+.card .value{
+font-size:32px;
+font-weight:700;
+}
+
+.formulaire{
+background:#1e293b;
+padding:25px;
+border-radius:20px;
+margin-bottom:25px;
+}
+
+.formulaire h2{
+margin-bottom:20px;
+}
+
+input,
+select,
+textarea{
+width:100%;
+padding:12px;
+margin-top:8px;
+margin-bottom:15px;
+border:none;
+border-radius:10px;
+background:#334155;
+color:white;
 }
 
 button{
-padding:10px;
 border:none;
-border-radius:8px;
-font-weight:bold;
+padding:12px 20px;
+border-radius:10px;
 cursor:pointer;
-margin:2px;
+font-weight:600;
 }
 
-.btn-ajout{
-background:#1f4e78;
-color:white;
+.btn-ajouter{
+background:#38bdf8;
+color:black;
 width:100%;
 }
 
-.btn-delete{
-background:#dc3545;
-color:white;
-}
-
-.btn-edit{
-background:#f0ad4e;
-color:white;
-}
-
-.btn-mail{
-background:#198754;
-color:white;
-width:100%;
+.table-card{
+background:#1e293b;
+padding:20px;
+border-radius:20px;
+overflow:auto;
 }
 
 table{
@@ -80,291 +120,60 @@ width:100%;
 border-collapse:collapse;
 }
 
-th,td{
-border:1px solid #ddd;
-padding:8px;
-text-align:center;
-font-size:12px;
+th{
+background:#334155;
+padding:12px;
 }
 
-th{
-background:#1f4e78;
+td{
+padding:10px;
+text-align:center;
+border-bottom:1px solid #334155;
+}
+
+.btn-delete{
+background:#ef4444;
 color:white;
 }
+
+.btn-edit{
+background:#f59e0b;
+color:white;
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h1>Heures Sup Solami</h1>
+<div class="logo">
+<h1>HS SOLAMI</h1>
+<p>Gestion Heures Supplémentaires & Équipe</p>
+</div>
+
+<div class="dashboard">
 
 <div class="card">
-
-<label>Technicien</label>
-<input type="text" id="technicien" value="Joan">
-
-<label>Date</label>
-<input type="date" id="date">
-
-<label>Chantier</label>
-<input type="text" id="chantier">
-
-<label>Heure début</label>
-<input type="time" id="debut">
-
-<label>Heure fin</label>
-<input type="time" id="fin">
-
-<label>Pause (minutes)</label>
-<input type="number" id="pause" value="60">
-
-<label>Kilomètres</label>
-<input type="number" id="km">
-
-<button class="btn-ajout" onclick="ajouter()">
-➕ Ajouter
-</button>
-
+<h3>Heures Supp</h3>
+<div class="value" id="totalHS">0</div>
 </div>
 
 <div class="card">
-<h3>Total Heures Supp : <span id="totalHS">0</span> h</h3>
-<h3>Total Km : <span id="totalKM">0</span> km</h3>
+<h3>Kilomètres</h3>
+<div class="value" id="totalKM">0</div>
 </div>
 
 <div class="card">
-<table>
-<thead>
-<tr>
-<th>Date</th>
-<th>Technicien</th>
-<th>HS</th>
-<th>Km</th>
-<th>Chantier</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody id="tableau"></tbody>
-</table>
+<h3>Semaine</h3>
+<div class="value" id="totalSemaine">0</div>
 </div>
 
 <div class="card">
-<button class="btn-mail" onclick="exportMail()">
-📧 Exporter le récapitulatif
-</button>
-<button class="btn-mail" onclick="exportPDF()">
-📄 Export PDF
-</button>
+<h3>Mois</h3>
+<div class="value" id="totalMois">0</div>
 </div>
 
 </div>
-
-<script>
-https://script.google.com/macros/s/AKfycbyfz-NrDGkZzMlUSDoB_UQ85k9-BF-Auyoxt7b8rP2jYpjnroQQNUUbsGh7JSMsHpxZ/exec
-let donnees = JSON.parse(localStorage.getItem("solami")) || [];
-let edition = -1;
-
-function calculHS(debut, fin, pause){
-
-let d = debut.split(":");
-let f = fin.split(":");
-
-let minutes =
-(f[0]*60 + Number(f[1])) -
-(d[0]*60 + Number(d[1])) -
-Number(pause);
-
-let heures = minutes / 60;
-
-return Math.max(0, heures - 7);
-
-}
-
-function ajouter(){localStorage.setItem("solami",JSON.stringify(donnees));
-fetch(WEBAPP_URL,{
-method:"POST",
-body:JSON.stringify(ligne)
-})
-.then(r=>r.text())
-.then(console.log)
-.catch(console.error);
-let technicien = document.getElementById("technicien").value;
-let date = document.getElementById("date").value;
-let chantier = document.getElementById("chantier").value;
-let debut = document.getElementById("debut").value;
-let fin = document.getElementById("fin").value;
-let pause = document.getElementById("pause").value;
-let km = Number(document.getElementById("km").value || 0);
-
-if(!date || !debut || !fin){
-alert("Complète les champs.");
-return;
-}
-
-let hs = calculHS(debut,fin,pause);
-
-let ligne = {
-technicien,
-date,
-chantier,
-km,
-hs,
-debut,
-fin,
-pause
-};
-
-if(edition >= 0){
-donnees[edition] = ligne;
-edition = -1;
-}else{
-donnees.push(ligne);
-}
-
-localStorage.setItem("solami",JSON.stringify(donnees));
-
-viderFormulaire();
-afficher();
-
-}
-
-function modifier(index){
-
-let ligne = donnees[index];
-
-document.getElementById("technicien").value = ligne.technicien;
-document.getElementById("date").value = ligne.date;
-document.getElementById("chantier").value = ligne.chantier;
-document.getElementById("debut").value = ligne.debut;
-document.getElementById("fin").value = ligne.fin;
-document.getElementById("pause").value = ligne.pause;
-document.getElementById("km").value = ligne.km;
-
-edition = index;
-
-}
-
-function supprimer(index){
-
-if(confirm("Supprimer cette ligne ?")){
-
-donnees.splice(index,1);
-
-localStorage.setItem("solami",
-JSON.stringify(donnees));
-
-afficher();
-
-}
-
-}
-
-function viderFormulaire(){
-
-document.getElementById("date").value="";
-document.getElementById("chantier").value="";
-document.getElementById("debut").value="";
-document.getElementById("fin").value="";
-document.getElementById("km").value="";
-
-}
-
-function exportMail(){
-
-let texte = "Récapitulatif heures supplémentaires\n\n";
-
-donnees.forEach(ligne => {
-
-texte +=
-ligne.date +
-" | " +
-ligne.technicien +
-" | " +
-ligne.chantier +
-" | HS : " +
-ligne.hs.toFixed(2) +
-"h | KM : " +
-ligne.km +
-"\n";
-
-});
-
-window.location.href =
-"mailto:?subject=Récap Heures Sup&body=" +
-encodeURIComponent(texte);
-
-}
-
-function afficher(){
-
-let html="";
-let totalHS=0;
-let totalKM=0;
-
-donnees.forEach((ligne,index)=>{
-
-totalHS += Number(ligne.hs);
-totalKM += Number(ligne.km);
-
-html += `
-<tr>
-<td>${ligne.date}</td>
-<td>${ligne.technicien}</td>
-<td>${ligne.hs.toFixed(2)}</td>
-<td>${ligne.km}</td>
-<td>${ligne.chantier}</td>
-<td>
-<button class="btn-edit" onclick="modifier(${index})">✏️</button>
-<button class="btn-delete" onclick="supprimer(${index})">🗑️</button>
-</td>
-</tr>
-`;
-
-});
-
-document.getElementById("tableau").innerHTML = html;
-document.getElementById("totalHS").innerText = totalHS.toFixed(2);
-document.getElementById("totalKM").innerText = totalKM;
-
-}
-function exportPDF(){
-
-const { jsPDF } = window.jspdf;
-
-const doc = new jsPDF();
-
-doc.setFontSize(16);
-doc.text("Rapport Heures Sup - Joan", 10, 15);
-
-let y = 30;
-
-donnees.forEach((ligne) => {
-
-doc.setFontSize(10);
-
-doc.text(
-`${ligne.date} | ${ligne.technicien} | ${ligne.chantier} | HS : ${ligne.hs.toFixed(2)} h | KM : ${ligne.km}`,
-10,
-y
-);
-
-y += 8;
-
-if(y > 270){
-doc.addPage();
-y = 20;
-}
-
-});
-
-doc.save("Rapport_Heures_Sup.pdf");
-
-}
-afficher();
-
-</script>
-
-</body>
-</html>
