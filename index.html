@@ -299,7 +299,203 @@ box-shadow:0 0 30px rgba(56,189,248,.4);
 
 <script>
 
-console.log("HS Solami V3 chargé");
+let donnees = JSON.parse(localStorage.getItem("hs_solami")) || [];
+
+function calculHS(debut, fin, pause){
+
+if(!debut || !fin) return 0;
+
+let d = debut.split(":");
+let f = fin.split(":");
+
+let minutes =
+((Number(f[0]) * 60) + Number(f[1])) -
+((Number(d[0]) * 60) + Number(d[1])) -
+Number(pause);
+
+let heuresTravaillees = minutes / 60;
+
+return Math.max(0, heuresTravaillees - 7);
+
+}
+
+function ajouterIntervention(){
+
+const ligne = {
+
+date: document.getElementById("date").value,
+technicien: document.getElementById("technicien").value,
+type: document.getElementById("type").value,
+chantier: document.getElementById("chantier").value,
+debut: document.getElementById("debut").value,
+fin: document.getElementById("fin").value,
+pause: Number(document.getElementById("pause").value || 0),
+km: Number(document.getElementById("km").value || 0),
+panier: Number(document.getElementById("panier").value || 0),
+deplacement: Number(document.getElementById("deplacement").value || 0),
+notes: document.getElementById("notes").value
+
+};
+
+if(
+!ligne.date ||
+!ligne.chantier ||
+!ligne.debut ||
+!ligne.fin
+){
+alert("Veuillez remplir tous les champs obligatoires");
+return;
+}
+
+ligne.hs = calculHS(
+ligne.debut,
+ligne.fin,
+ligne.pause
+);
+
+donnees.push(ligne);
+
+localStorage.setItem(
+"hs_solami",
+JSON.stringify(donnees)
+);
+
+viderFormulaire();
+afficher();
+
+}
+
+function viderFormulaire(){
+
+document.getElementById("chantier").value="";
+document.getElementById("debut").value="";
+document.getElementById("fin").value="";
+document.getElementById("km").value="";
+document.getElementById("notes").value="";
+
+}
+
+function supprimer(index){
+
+if(!confirm("Supprimer cette intervention ?"))
+return;
+
+donnees.splice(index,1);
+
+localStorage.setItem(
+"hs_solami",
+JSON.stringify(donnees)
+);
+
+afficher();
+
+}
+
+function afficher(){
+
+let html = "";
+
+let totalHS = 0;
+let totalKM = 0;
+
+donnees.forEach((ligne,index)=>{
+
+totalHS += Number(ligne.hs);
+totalKM += Number(ligne.km);
+
+html += `
+<tr>
+<td>${ligne.date}</td>
+<td>${ligne.technicien}</td>
+<td>${ligne.type}</td>
+<td>${ligne.hs.toFixed(2)} h</td>
+<td>${ligne.km}</td>
+<td>
+<button class="btn-delete"
+onclick="supprimer(${index})">
+🗑️
+</button>
+</td>
+</tr>
+`;
+
+});
+
+document.getElementById("tableau").innerHTML = html;
+
+document.getElementById("totalHS").innerText =
+totalHS.toFixed(2);
+
+document.getElementById("totalKM").innerText =
+totalKM;
+
+document.getElementById("totalSemaine").innerText =
+totalHS.toFixed(2);
+
+document.getElementById("totalMois").innerText =
+totalHS.toFixed(2);
+
+}
+
+function exportCSV(){
+
+let csv =
+"Date;Technicien;Type;Chantier;HS;KM\n";
+
+donnees.forEach(ligne=>{
+
+csv +=
+`${ligne.date};${ligne.technicien};${ligne.type};${ligne.chantier};${ligne.hs};${ligne.km}\n`;
+
+});
+
+let blob =
+new Blob([csv], {
+type:"text/csv;charset=utf-8;"
+});
+
+let link =
+document.createElement("a");
+
+link.href =
+URL.createObjectURL(blob);
+
+link.download =
+"HS_SOLAMI.csv";
+
+link.click();
+
+}
+
+function exportPDF(){
+
+window.print();
+
+}
+
+document
+.querySelector(".btn-ajouter")
+.addEventListener(
+"click",
+ajouterIntervention
+);
+
+const boutons =
+document.querySelectorAll("button");
+
+boutons.forEach(btn=>{
+
+if(btn.textContent.includes("PDF")){
+btn.onclick = exportPDF;
+}
+
+if(btn.textContent.includes("Mail")){
+btn.onclick = exportCSV;
+}
+
+});
+
+afficher();
 
 </script>
 
