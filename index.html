@@ -155,6 +155,20 @@ select option{background:#191919}
 .pv-progress{height:7px;background:#333;border-radius:20px;overflow:hidden;margin-top:8px}.pv-progress span{display:block;height:100%;background:linear-gradient(90deg,#9d7934,var(--gold2))}
 @media(max-width:700px){.pv-grid{grid-template-columns:1fr}.nav-inner{grid-template-columns:repeat(6,minmax(0,1fr))}.nav-btn{font-size:9px}.nav-icon{font-size:17px}}
 
+
+/* Chef PV : parcours terrain express, tout par cases à cocher sauf le rapport final */
+.pv-quick-module{margin-bottom:14px;padding:18px}
+.pv-quick-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.pv-quick-head h3{font:800 17px Manrope,sans-serif;margin:0}
+.pv-quick-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}
+.pv-quick-checks .pv-check{padding:12px 4px;min-height:46px;align-items:center}
+.pv-quick-checks .pv-check input{width:20px;height:20px;flex-shrink:0;accent-color:var(--gold)}
+.pv-quick-progress{height:6px;background:#333;border-radius:20px;overflow:hidden;margin-top:12px}
+.pv-quick-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#9d7934,var(--gold2));transition:width .2s}
+.pv-advanced-toggle{display:flex;justify-content:center;margin:18px 0}
+.pv-advanced{margin-top:14px}.pv-advanced[hidden]{display:none!important}
+@media(max-width:600px){.pv-quick-checks{grid-template-columns:1fr}.pv-quick-module{padding:15px}.pv-quick-head{align-items:flex-start}}
+
 </style>
 </head>
 <body>
@@ -267,7 +281,27 @@ select option{background:#191919}
     </section>
 
     <section id="page-chef" class="page">
-      <div class="page-heading"><div><div class="eyebrow">Espace chef d’équipe photovoltaïque</div><h2>Chef PV ☀</h2><p class="subtitle">Prépare tes chantiers, organise l’équipe et progresse vers responsable technique — dans le même style noir et or que HS Solami.</p></div><div class="date-chip">SOLAMI · Chef d’équipe</div></div>
+      <div class="page-heading"><div><div class="eyebrow">Mode terrain · rapide</div><h2>Chef PV ☀</h2><p class="subtitle">Prépare le chantier en quelques clics. Tu coches, puis tu rédiges uniquement le compte rendu à la fin.</p></div><div class="date-chip" id="pvQuickDate"></div></div>
+      <section class="pv-module pv-quick-module">
+        <div class="pv-quick-head"><div><div class="eyebrow">01 · Avant de partir</div><h3>📦 Matériel à prévoir</h3></div><span class="pv-badge" id="pvQuickMaterialCount">0 / 0 prêts</span></div>
+        <p class="pv-note">Coche ce qui est chargé dans le véhicule. Les quantités sont des repères à vérifier selon le plan et le chantier.</p>
+        <div id="pvQuickMaterials" class="pv-quick-checks"></div>
+        <div class="pv-quick-progress"><span id="pvQuickMaterialBar"></span></div>
+      </section>
+      <section class="pv-module pv-quick-module">
+        <div class="pv-quick-head"><div><div class="eyebrow">02 · Avant intervention</div><h3>🦺 Contrôles rapides</h3></div><span class="pv-badge" id="pvQuickSafetyCount">0 / 0</span></div>
+        <div id="pvQuickSafety" class="pv-quick-checks"></div>
+        <p class="pv-note">Cette liste ne remplace pas l’analyse des risques, les consignes de l’entreprise ni les habilitations requises.</p>
+      </section>
+      <section class="pv-module pv-quick-module">
+        <div class="pv-quick-head"><div><div class="eyebrow">03 · Fin de chantier</div><h3>📄 Compte rendu</h3></div><span class="pv-badge">À remplir à la fin</span></div>
+        <div class="field"><label for="pvQuickJob">Chantier</label><select id="pvQuickJob"><option value="">Chantier du jour</option></select></div>
+        <div class="field"><label for="pvQuickReport">Rapport de fin de chantier</label><textarea id="pvQuickReport" rows="5" placeholder="Travaux réalisés, contrôles effectués, réserves, matériel manquant et prochaine étape…"></textarea></div>
+        <div class="pv-actions"><button class="btn btn-gold" type="button" onclick="pvQuickGenerateReport()">✓ Générer le compte rendu</button><button class="btn btn-dark" type="button" onclick="pvQuickPrintReport()">Imprimer / PDF</button><button class="btn btn-dark" type="button" onclick="pvQuickReset()">Réinitialiser les cases</button></div>
+        <div id="pvQuickReportPreview" class="pv-callout" style="display:none;white-space:pre-wrap"></div>
+      </section>
+      <div class="pv-advanced-toggle"><button class="btn btn-dark" type="button" id="pvAdvancedToggle" onclick="pvToggleAdvanced()">⚙ Outils avancés (chantiers, équipe, fiches techniques, formation)</button></div>
+      <div id="pvAdvanced" class="pv-advanced" hidden>
       <div class="stats-grid">
         <article class="stat-card"><div class="stat-top"><span>Chantiers suivis</span><span class="stat-icon">⌂</span></div><div class="stat-value" id="pvStatJobs">0</div><div class="stat-foot">Tous statuts confondus</div></article>
         <article class="stat-card"><div class="stat-top"><span>Membres d’équipe</span><span class="stat-icon">♟</span></div><div class="stat-value" id="pvStatTeam">0</div><div class="stat-foot">Techniciens enregistrés</div></article>
@@ -287,6 +321,7 @@ select option{background:#191919}
         <section class="pv-module"><h3>🎓 Formation chef d’équipe <span class="pv-badge">Progression</span></h3><p class="pv-note">Coche les compétences travaillées pour suivre ton parcours vers responsable technique.</p><div id="pvTrainingList"></div><div class="pv-progress"><span id="pvTrainingBar" style="width:0%"></span></div><div class="pv-note" id="pvTrainingText" style="margin-top:8px"></div></section>
         <section class="pv-module"><h3>📄 Compte rendu de chantier <span class="pv-badge">Rapport</span></h3><div class="field"><label for="pvReportJob">Chantier</label><select id="pvReportJob"></select></div><div class="field"><label for="pvReportDone">Travaux réalisés</label><textarea id="pvReportDone" rows="2" placeholder="Pose, câblage, contrôles…"></textarea></div><div class="field"><label for="pvReportIssues">Difficultés / réserves</label><textarea id="pvReportIssues" rows="2" placeholder="Matériel manquant, anomalie…"></textarea></div><div class="field"><label for="pvReportNext">Prochaine étape</label><textarea id="pvReportNext" rows="2" placeholder="Actions à prévoir…"></textarea></div><div class="pv-actions"><button class="btn btn-gold" onclick="pvGenerateReport()">Générer le rapport</button><button class="btn btn-dark" onclick="pvPrintReport()">Imprimer / PDF</button></div><div id="pvReportPreview" class="pv-callout" style="display:none"></div></section>
         <section class="pv-module"><h3>🧭 Briefing de la journée <span class="pv-badge">Organisation</span></h3><div class="field"><label for="pvBriefing">Priorités et répartition</label><textarea id="pvBriefing" rows="5" placeholder="1. Briefing sécurité\n2. Répartition des tâches\n3. Contrôle matériel\n4. Vérifications fin de chantier"></textarea></div><button class="btn btn-dark" onclick="pvSaveBriefing()">Enregistrer le briefing</button><p class="pv-note" id="pvBriefingMsg"></p><div class="pv-callout">Conseil : commence chaque journée par les risques, les objectifs, les rôles, le matériel critique et les critères de fin de chantier.</div></section>
+      </div>
       </div>
     </section>
 
@@ -556,7 +591,48 @@ window.pvShowTech=()=>{let t=PV_TECH[document.getElementById('pvTechTopic').valu
 window.pvGenerateReport=()=>{let id=Number(document.getElementById('pvReportJob').value),j=pvDB.jobs.find(x=>x.id===id);let txt=`COMPTE RENDU DE CHANTIER\nChantier : ${j?j.name:'Non renseigné'}\nLieu : ${j?j.place:'—'}\nDate : ${new Date().toLocaleDateString('fr-FR')}\n\nTravaux réalisés :\n${document.getElementById('pvReportDone').value||'Non renseigné'}\n\nDifficultés / réserves :\n${document.getElementById('pvReportIssues').value||'Aucune renseignée'}\n\nProchaine étape :\n${document.getElementById('pvReportNext').value||'Non renseignée'}`;let el=document.getElementById('pvReportPreview');el.style.display='block';el.textContent=txt;el.dataset.report=txt};
 window.pvPrintReport=()=>{let el=document.getElementById('pvReportPreview');if(!el.dataset.report){pvGenerateReport()}let w=window.open('','_blank');if(!w){showToast('Autorise les fenêtres pop-up pour imprimer');return}w.document.write('<!doctype html><html lang="fr"><meta charset="utf-8"><title>Rapport chantier</title><style>body{font:15px Arial;white-space:pre-wrap;padding:28px;color:#111}</style><body>'+pvEsc(el.dataset.report||'')+'</body></html>');w.document.close();w.print()};
 // Le stockage Chef PV est séparé : les données de l'application d'heures existante sont conservées.
-const oldOpenPage=openPage;openPage=function(name){oldOpenPage(name);if(name==='chef')pvRender()};
+
+const PV_QUICK_MATERIALS=[
+ ['Panneaux photovoltaïques','Références et quantité du plan'],['Rails / profilés','Longueurs et nombre selon calepinage'],['Crochets / fixations toiture','Adaptés au support'],['Brides et visserie','Début, milieu, fin + réserve'],['Éclisses / jonctions','Compatibles avec les rails'],['Onduleur / micro-onduleurs','Selon dossier chantier'],['Coffret et protections AC/DC','Selon schéma électrique'],['Câble solaire DC rouge / noir','Longueurs prévues + réserve'],['Connecteurs compatibles (MC4)','Même gamme compatible'],['Câble AC et accessoires','Section / longueur selon étude'],['Terre et liaisons équipotentielles','Conducteurs et accessoires prévus'],['Goulottes / gaines / colliers','Protection et fixation des câbles'],['Étiquettes / repérage','Selon dossier et règles applicables'],['Visserie / chevilles diverses','Selon support et prescriptions'],['Outillage de pose','Clés, embouts, visseuse, mesure'],['Outillage électrique adapté','Uniquement pour personnel habilité'],['EPI et protection antichute','Selon analyse des risques'],['Balisage / signalisation','Rubalise, panneaux, cônes'],['Plans / schémas / notices','Version chantier à jour'],['Nettoyage et rangement','Sacs, brosses, collecte déchets']
+];
+const PV_QUICK_SAFETY=['Plans et consignes du chantier consultés','Météo et conditions de toiture vérifiées','Accès, échafaudage / protections antichute vérifiés','EPI adaptés et en bon état','Zone balisée et sécurisée','Matériel et références contrôlés','Risques électriques et procédure identifiés','Briefing équipe et répartition des tâches réalisés','Contrôle de fin et rangement prévus'];
+if(!Array.isArray(pvDB.quickMaterialDone))pvDB.quickMaterialDone=[];
+if(!Array.isArray(pvDB.quickSafetyDone))pvDB.quickSafetyDone=[];
+function pvQuickRender(){
+ const m=document.getElementById('pvQuickMaterials'),q=document.getElementById('pvQuickSafety');if(!m||!q)return;
+ document.getElementById('pvQuickDate').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+ m.innerHTML=PV_QUICK_MATERIALS.map((x,i)=>`<label class="pv-check"><input type="checkbox" ${pvDB.quickMaterialDone.includes(i)?'checked':''} onchange="pvQuickToggleMaterial(${i},this.checked)"><span><strong>${pvEsc(x[0])}</strong><br><small class="pv-note">${pvEsc(x[1])}</small></span></label>`).join('');
+ q.innerHTML=PV_QUICK_SAFETY.map((x,i)=>`<label class="pv-check"><input type="checkbox" ${pvDB.quickSafetyDone.includes(i)?'checked':''} onchange="pvQuickToggleSafety(${i},this.checked)"><span>${pvEsc(x)}</span></label>`).join('');
+ const mc=pvDB.quickMaterialDone.length,sc=pvDB.quickSafetyDone.length;document.getElementById('pvQuickMaterialCount').textContent=`${mc} / ${PV_QUICK_MATERIALS.length} prêts`;document.getElementById('pvQuickMaterialBar').style.width=(mc/PV_QUICK_MATERIALS.length*100)+'%';document.getElementById('pvQuickSafetyCount').textContent=`${sc} / ${PV_QUICK_SAFETY.length}`;
+ const sel=document.getElementById('pvQuickJob'),old=sel.value;sel.innerHTML='<option value="">Chantier du jour</option>'+pvDB.jobs.map(j=>`<option value="${j.id}">${pvEsc(j.name)}</option>`).join('');if([...sel.options].some(o=>o.value===old))sel.value=old;
+}
+window.pvQuickToggleMaterial=(i,v)=>{pvDB.quickMaterialDone=v?[...new Set([...pvDB.quickMaterialDone,i])]:pvDB.quickMaterialDone.filter(n=>n!==i);localStorage.setItem(PV_KEY,JSON.stringify(pvDB));pvQuickRender()};
+window.pvQuickToggleSafety=(i,v)=>{pvDB.quickSafetyDone=v?[...new Set([...pvDB.quickSafetyDone,i])]:pvDB.quickSafetyDone.filter(n=>n!==i);localStorage.setItem(PV_KEY,JSON.stringify(pvDB));pvQuickRender()};
+window.pvQuickReset=()=>{if(!confirm('Décocher toutes les cases de préparation et de sécurité ?'))return;pvDB.quickMaterialDone=[];pvDB.quickSafetyDone=[];localStorage.setItem(PV_KEY,JSON.stringify(pvDB));pvQuickRender();showToast('Cases réinitialisées')};
+window.pvQuickGenerateReport=()=>{const id=Number(document.getElementById('pvQuickJob').value),job=pvDB.jobs.find(j=>j.id===id),report=document.getElementById('pvQuickReport').value.trim();const checkedM=PV_QUICK_MATERIALS.filter((x,i)=>pvDB.quickMaterialDone.includes(i)).map(x=>'[x] '+x[0]);const missingM=PV_QUICK_MATERIALS.filter((x,i)=>!pvDB.quickMaterialDone.includes(i)).map(x=>'[ ] '+x[0]);const checkedS=PV_QUICK_SAFETY.filter((x,i)=>pvDB.quickSafetyDone.includes(i)).map(x=>'[x] '+x);const uncheckedS=PV_QUICK_SAFETY.filter((x,i)=>!pvDB.quickSafetyDone.includes(i)).map(x=>'[ ] '+x);const txt=`COMPTE RENDU DE CHANTIER — SOLAMI
+Date : ${new Date().toLocaleDateString('fr-FR')}
+Chantier : ${job?job.name:'Chantier du jour'}${job&&job.place?' — '+job.place:''}
+
+MATÉRIEL COCHÉ (${checkedM.length}/${PV_QUICK_MATERIALS.length})
+${checkedM.join('\n')||'Aucun matériel coché'}
+
+MATÉRIEL NON COCHÉ / À VÉRIFIER
+${missingM.join('\n')||'Tout est coché'}
+
+SÉCURITÉ (${checkedS.length}/${PV_QUICK_SAFETY.length})
+${checkedS.join('\n')||'Aucun contrôle coché'}
+
+POINTS NON COCHÉS
+${uncheckedS.join('\n')||'Tous les contrôles sont cochés'}
+
+RAPPORT / TRAVAUX / RÉSERVES / SUITE À DONNER
+${report||'À compléter'}
+
+Important : les cases cochées sont une aide-mémoire et ne remplacent pas les contrôles et procédures obligatoires.`;const el=document.getElementById('pvQuickReportPreview');el.style.display='block';el.textContent=txt;el.dataset.report=txt;showToast('Compte rendu généré')};
+window.pvQuickPrintReport=()=>{const el=document.getElementById('pvQuickReportPreview');if(!el.dataset.report){pvQuickGenerateReport()}const w=window.open('','_blank');if(!w){showToast('Autorise les fenêtres pop-up pour imprimer');return}w.document.write('<!doctype html><html lang="fr"><meta charset="utf-8"><title>Compte rendu chantier</title><style>body{font:14px Arial;white-space:pre-wrap;padding:28px;color:#111;line-height:1.45}h1{font-size:18px}</style><body>'+pvEsc(el.dataset.report||'')+'</body></html>');w.document.close();w.print()};
+window.pvToggleAdvanced=()=>{const el=document.getElementById('pvAdvanced'),btn=document.getElementById('pvAdvancedToggle');el.hidden=!el.hidden;btn.textContent=el.hidden?'⚙ Outils avancés (chantiers, équipe, fiches techniques, formation)':'⌃ Masquer les outils avancés';if(!el.hidden)pvRender()};
+const oldOpenPage=openPage;openPage=function(name){oldOpenPage(name);if(name==='chef'){pvQuickRender();pvRender()}};
+
 
 </script>
 </body>
