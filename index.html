@@ -283,19 +283,25 @@ select option{background:#191919}
     <section id="page-chef" class="page">
       <div class="page-heading"><div><div class="eyebrow">Mode terrain · rapide</div><h2>Chef PV ☀</h2><p class="subtitle">Prépare le chantier en quelques clics. Tu coches, puis tu rédiges uniquement le compte rendu à la fin.</p></div><div class="date-chip" id="pvQuickDate"></div></div>
       <section class="pv-module pv-quick-module">
-        <div class="pv-quick-head"><div><div class="eyebrow">01 · Avant de partir</div><h3>📦 Matériel à prévoir</h3></div><span class="pv-badge" id="pvQuickMaterialCount">0 / 0 prêts</span></div>
+        <div class="pv-quick-head"><div><div class="eyebrow">01 · Identification</div><h3>🏗️ Chantier du jour</h3></div><span class="pv-badge">Fiche chantier</span></div>
+        <div class="field"><label for="pvQuickJob">Sélectionner le chantier</label><select id="pvQuickJob"><option value="">Choisir un chantier enregistré…</option></select></div>
+        <div id="pvQuickJobDetails" class="pv-callout">Choisis un chantier pour afficher automatiquement le client, l’adresse et les caractéristiques.</div>
+        <p class="pv-note">Pour ajouter ou modifier un chantier, ouvre « Outils avancés » en bas de page.</p>
+      </section>
+      <section class="pv-module pv-quick-module">
+        <div class="pv-quick-head"><div><div class="eyebrow">02 · Avant de partir</div><h3>📦 Matériel à prévoir</h3></div><span class="pv-badge" id="pvQuickMaterialCount">0 / 0 prêts</span></div>
         <p class="pv-note">Coche ce qui est chargé dans le véhicule. Les quantités sont des repères à vérifier selon le plan et le chantier.</p>
         <div id="pvQuickMaterials" class="pv-quick-checks"></div>
         <div class="pv-quick-progress"><span id="pvQuickMaterialBar"></span></div>
       </section>
       <section class="pv-module pv-quick-module">
-        <div class="pv-quick-head"><div><div class="eyebrow">02 · Avant intervention</div><h3>🦺 Contrôles rapides</h3></div><span class="pv-badge" id="pvQuickSafetyCount">0 / 0</span></div>
+        <div class="pv-quick-head"><div><div class="eyebrow">03 · Avant intervention</div><h3>🦺 Contrôles rapides</h3></div><span class="pv-badge" id="pvQuickSafetyCount">0 / 0</span></div>
         <div id="pvQuickSafety" class="pv-quick-checks"></div>
         <p class="pv-note">Cette liste ne remplace pas l’analyse des risques, les consignes de l’entreprise ni les habilitations requises.</p>
       </section>
       <section class="pv-module pv-quick-module">
-        <div class="pv-quick-head"><div><div class="eyebrow">03 · Fin de chantier</div><h3>📄 Compte rendu</h3></div><span class="pv-badge">À remplir à la fin</span></div>
-        <div class="field"><label for="pvQuickJob">Chantier</label><select id="pvQuickJob"><option value="">Chantier du jour</option></select></div>
+        <div class="pv-quick-head"><div><div class="eyebrow">04 · Fin de chantier</div><h3>📄 Compte rendu</h3></div><span class="pv-badge">À remplir à la fin</span></div>
+        <div class="field"><label for="pvQuickStatus">État du chantier</label><select id="pvQuickStatus"><option>Terminé</option><option>Partiellement terminé</option><option>Bloqué</option><option>En attente de matériel</option><option>À reprendre / réserves</option></select></div>
         <div class="field"><label for="pvQuickReport">Rapport de fin de chantier</label><textarea id="pvQuickReport" rows="5" placeholder="Travaux réalisés, contrôles effectués, réserves, matériel manquant et prochaine étape…"></textarea></div>
         <div class="pv-actions"><button class="btn btn-gold" type="button" onclick="pvQuickGenerateReport()">✓ Générer le compte rendu</button><button class="btn btn-dark" type="button" onclick="pvQuickPrintReport()">Imprimer / PDF</button><button class="btn btn-dark" type="button" onclick="pvQuickReset()">Réinitialiser les cases</button></div>
         <div id="pvQuickReportPreview" class="pv-callout" style="display:none;white-space:pre-wrap"></div>
@@ -604,13 +610,17 @@ function pvQuickRender(){
  m.innerHTML=PV_QUICK_MATERIALS.map((x,i)=>`<label class="pv-check"><input type="checkbox" ${pvDB.quickMaterialDone.includes(i)?'checked':''} onchange="pvQuickToggleMaterial(${i},this.checked)"><span><strong>${pvEsc(x[0])}</strong><br><small class="pv-note">${pvEsc(x[1])}</small></span></label>`).join('');
  q.innerHTML=PV_QUICK_SAFETY.map((x,i)=>`<label class="pv-check"><input type="checkbox" ${pvDB.quickSafetyDone.includes(i)?'checked':''} onchange="pvQuickToggleSafety(${i},this.checked)"><span>${pvEsc(x)}</span></label>`).join('');
  const mc=pvDB.quickMaterialDone.length,sc=pvDB.quickSafetyDone.length;document.getElementById('pvQuickMaterialCount').textContent=`${mc} / ${PV_QUICK_MATERIALS.length} prêts`;document.getElementById('pvQuickMaterialBar').style.width=(mc/PV_QUICK_MATERIALS.length*100)+'%';document.getElementById('pvQuickSafetyCount').textContent=`${sc} / ${PV_QUICK_SAFETY.length}`;
- const sel=document.getElementById('pvQuickJob'),old=sel.value;sel.innerHTML='<option value="">Chantier du jour</option>'+pvDB.jobs.map(j=>`<option value="${j.id}">${pvEsc(j.name)}</option>`).join('');if([...sel.options].some(o=>o.value===old))sel.value=old;
+ const sel=document.getElementById('pvQuickJob'),old=sel.value;sel.innerHTML='<option value="">Choisir un chantier enregistré…</option>'+pvDB.jobs.map(j=>`<option value="${j.id}">${pvEsc(j.name)}</option>`).join('');if([...sel.options].some(o=>o.value===old))sel.value=old;pvQuickJobDetails();
 }
+
+function pvQuickJobDetails(){const id=Number(document.getElementById('pvQuickJob').value),j=pvDB.jobs.find(x=>x.id===id),el=document.getElementById('pvQuickJobDetails');if(!el)return;el.innerHTML=j?`<strong>${pvEsc(j.name)}</strong><br>Client : ${pvEsc(j.client||'Non renseigné')}<br>Lieu : ${pvEsc(j.place||'Non renseigné')}<br>Installation : ${pvEsc(j.power||'—')} kWc · ${pvEsc(j.panels||'—')} panneaux`:'Choisis un chantier pour afficher automatiquement le client, l’adresse et les caractéristiques.';}
+document.getElementById('pvQuickJob').addEventListener('change',pvQuickJobDetails);
 window.pvQuickToggleMaterial=(i,v)=>{pvDB.quickMaterialDone=v?[...new Set([...pvDB.quickMaterialDone,i])]:pvDB.quickMaterialDone.filter(n=>n!==i);localStorage.setItem(PV_KEY,JSON.stringify(pvDB));pvQuickRender()};
 window.pvQuickToggleSafety=(i,v)=>{pvDB.quickSafetyDone=v?[...new Set([...pvDB.quickSafetyDone,i])]:pvDB.quickSafetyDone.filter(n=>n!==i);localStorage.setItem(PV_KEY,JSON.stringify(pvDB));pvQuickRender()};
 window.pvQuickReset=()=>{if(!confirm('Décocher toutes les cases de préparation et de sécurité ?'))return;pvDB.quickMaterialDone=[];pvDB.quickSafetyDone=[];localStorage.setItem(PV_KEY,JSON.stringify(pvDB));pvQuickRender();showToast('Cases réinitialisées')};
-window.pvQuickGenerateReport=()=>{const id=Number(document.getElementById('pvQuickJob').value),job=pvDB.jobs.find(j=>j.id===id),report=document.getElementById('pvQuickReport').value.trim();const checkedM=PV_QUICK_MATERIALS.filter((x,i)=>pvDB.quickMaterialDone.includes(i)).map(x=>'[x] '+x[0]);const missingM=PV_QUICK_MATERIALS.filter((x,i)=>!pvDB.quickMaterialDone.includes(i)).map(x=>'[ ] '+x[0]);const checkedS=PV_QUICK_SAFETY.filter((x,i)=>pvDB.quickSafetyDone.includes(i)).map(x=>'[x] '+x);const uncheckedS=PV_QUICK_SAFETY.filter((x,i)=>!pvDB.quickSafetyDone.includes(i)).map(x=>'[ ] '+x);const txt=`COMPTE RENDU DE CHANTIER — SOLAMI
+window.pvQuickGenerateReport=()=>{const id=Number(document.getElementById('pvQuickJob').value),job=pvDB.jobs.find(j=>j.id===id),report=document.getElementById('pvQuickReport').value.trim(),status=document.getElementById('pvQuickStatus').value;const checkedM=PV_QUICK_MATERIALS.filter((x,i)=>pvDB.quickMaterialDone.includes(i)).map(x=>'[x] '+x[0]);const missingM=PV_QUICK_MATERIALS.filter((x,i)=>!pvDB.quickMaterialDone.includes(i)).map(x=>'[ ] '+x[0]);const checkedS=PV_QUICK_SAFETY.filter((x,i)=>pvDB.quickSafetyDone.includes(i)).map(x=>'[x] '+x);const uncheckedS=PV_QUICK_SAFETY.filter((x,i)=>!pvDB.quickSafetyDone.includes(i)).map(x=>'[ ] '+x);const txt=`COMPTE RENDU DE CHANTIER — SOLAMI
 Date : ${new Date().toLocaleDateString('fr-FR')}
+État du chantier : ${status}
 Client : ${job&&job.client?job.client:'Non renseigné'}
 Chantier : ${job?job.name:'Chantier du jour'}
 Lieu : ${job&&job.place?job.place:'Non renseigné'}
