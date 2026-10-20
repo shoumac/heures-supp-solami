@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111111">
-<title>HS Solami — Gestion d'équipe</title>
+<title>HS Solami — Gestion d’équipe & Chef PV</title>
 <link rel="apple-touch-icon" sizes="180x180" href="logo noir or.png">
 <link rel="icon" type="image/png" href="logo noir or.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -137,6 +137,24 @@ select option{background:#191919}
  th,td{border-color:#ddd;color:#111}table{min-width:0}.table-wrap{overflow:visible}
  #page-home .grid-two{display:none}#page-home .stats-grid{grid-template-columns:repeat(4,1fr)}
 }
+
+/* Extension Chef PV — conserve la direction artistique noire et or de HS Solami */
+.nav-inner{grid-template-columns:repeat(6,1fr)}
+.nav-btn{min-width:0}
+.pv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:18px}
+.pv-module{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;min-width:0}
+.pv-module h3{font:700 15px Manrope,sans-serif;margin:0 0 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pv-module .field{margin-bottom:12px}
+.pv-module .field input,.pv-module .field select,.pv-module .field textarea{background:#111;border:1px solid #383838;color:var(--text);padding:11px 12px;border-radius:10px}
+.pv-row{display:flex;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:11px 0;font-size:12px}
+.pv-row:first-of-type{border-top:0}.pv-row-main{min-width:0;flex:1}.pv-row-main strong{display:block}.pv-row-main small{display:block;color:var(--muted);margin-top:3px}
+.pv-badge{display:inline-block;padding:5px 8px;border-radius:8px;background:#302a1e;color:var(--gold2);font-size:10px;white-space:nowrap}
+.pv-check{display:flex;gap:9px;align-items:flex-start;border-top:1px solid var(--line);padding:10px 0;font-size:12px;color:#d8d3c8}.pv-check input{width:auto;margin-top:2px;accent-color:var(--gold)}
+.pv-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.pv-note{font-size:11px;line-height:1.65;color:var(--muted)}
+.pv-callout{border:1px solid rgba(230,189,101,.22);background:rgba(230,189,101,.06);border-radius:13px;padding:13px;font-size:12px;line-height:1.65;color:#ddd4bd;margin-top:10px}
+.pv-progress{height:7px;background:#333;border-radius:20px;overflow:hidden;margin-top:8px}.pv-progress span{display:block;height:100%;background:linear-gradient(90deg,#9d7934,var(--gold2))}
+@media(max-width:700px){.pv-grid{grid-template-columns:1fr}.nav-inner{grid-template-columns:repeat(6,minmax(0,1fr))}.nav-btn{font-size:9px}.nav-icon{font-size:17px}}
+
 </style>
 </head>
 <body>
@@ -247,6 +265,31 @@ select option{background:#191919}
         <div class="form-actions"><button class="btn btn-dark" onclick="exportCSV()">↓ Exporter une sauvegarde CSV</button><button class="btn btn-danger" onclick="effacerToutesDonnees()">Supprimer toutes les interventions</button></div>
       </section>
     </section>
+
+    <section id="page-chef" class="page">
+      <div class="page-heading"><div><div class="eyebrow">Espace chef d’équipe photovoltaïque</div><h2>Chef PV ☀</h2><p class="subtitle">Prépare tes chantiers, organise l’équipe et progresse vers responsable technique — dans le même style noir et or que HS Solami.</p></div><div class="date-chip">SOLAMI · Chef d’équipe</div></div>
+      <div class="stats-grid">
+        <article class="stat-card"><div class="stat-top"><span>Chantiers suivis</span><span class="stat-icon">⌂</span></div><div class="stat-value" id="pvStatJobs">0</div><div class="stat-foot">Tous statuts confondus</div></article>
+        <article class="stat-card"><div class="stat-top"><span>Membres d’équipe</span><span class="stat-icon">♟</span></div><div class="stat-value" id="pvStatTeam">0</div><div class="stat-foot">Techniciens enregistrés</div></article>
+        <article class="stat-card"><div class="stat-top"><span>Matériel prêt</span><span class="stat-icon">◇</span></div><div class="stat-value" id="pvStatMaterial">0%</div><div class="stat-foot">Checklist matériel</div></article>
+        <article class="stat-card"><div class="stat-top"><span>Formation chef</span><span class="stat-icon">✦</span></div><div class="stat-value" id="pvStatTraining">0%</div><div class="stat-foot">Modules terminés</div></article>
+      </div>
+      <div class="pv-grid">
+        <section class="pv-module"><h3>🏗️ Chantiers <span class="pv-badge">Suivi</span></h3>
+          <form id="pvJobForm"><div class="field"><label for="pvJobName">Nom du chantier *</label><input id="pvJobName" required placeholder="Ex. Villa Dupont"></div><div class="form-layout"><div class="field"><label for="pvJobPlace">Ville / secteur</label><input id="pvJobPlace" placeholder="Saint-Leu"></div><div class="field"><label for="pvJobPower">Puissance (kWc)</label><input id="pvJobPower" type="number" min="0" step="0.1" placeholder="6"></div><div class="field"><label for="pvJobPanels">Nombre de panneaux</label><input id="pvJobPanels" type="number" min="0" placeholder="14"></div><div class="field"><label for="pvJobStatus">Statut</label><select id="pvJobStatus"><option>À préparer</option><option>Planifié</option><option>En cours</option><option>Bloqué</option><option>Terminé</option></select></div></div><div class="field"><label for="pvJobNotes">Notes / blocages</label><textarea id="pvJobNotes" rows="2" placeholder="Accès, météo, matériel manquant…"></textarea></div><button class="btn btn-gold" type="submit">＋ Ajouter le chantier</button></form><div id="pvJobsList" style="margin-top:14px"></div>
+        </section>
+        <section class="pv-module"><h3>👷 Gestion de l’équipe <span class="pv-badge">Terrain</span></h3>
+          <form id="pvPersonForm"><div class="field"><label for="pvPersonName">Nom du technicien *</label><input id="pvPersonName" required placeholder="Prénom / nom"></div><div class="form-layout"><div class="field"><label for="pvPersonRole">Rôle</label><select id="pvPersonRole"><option>Technicien photovoltaïque</option><option>Électricien</option><option>Apprenti</option><option>Chef d’équipe</option></select></div><div class="field"><label for="pvPersonStatus">Disponibilité</label><select id="pvPersonStatus"><option>Disponible</option><option>Sur chantier</option><option>En pause</option><option>Absent</option></select></div></div><button class="btn btn-gold" type="submit">＋ Ajouter un membre</button></form><div id="pvTeamList" style="margin-top:14px"></div>
+        </section>
+        <section class="pv-module"><h3>📦 Matériel à préparer <span class="pv-badge">Checklist</span></h3><form id="pvMaterialForm"><div class="field"><label for="pvMaterialName">Matériel</label><input id="pvMaterialName" required placeholder="Ex. rails, MC4, onduleur"></div><div class="field"><label for="pvMaterialQty">Quantité / remarque</label><input id="pvMaterialQty" placeholder="28 rails / 50 m câble"></div><button class="btn btn-dark" type="submit">＋ Ajouter à la liste</button></form><div id="pvMaterialList" style="margin-top:10px"></div></section>
+        <section class="pv-module"><h3>🦺 Sécurité chantier <span class="pv-badge">Avant départ</span></h3><p class="pv-note">Cette checklist aide au briefing mais ne remplace pas l’évaluation des risques, les procédures de l’entreprise ni les habilitations requises.</p><div id="pvSafetyList"></div><div class="pv-actions"><button class="btn btn-dark" onclick="pvSaveSafety()">Enregistrer la checklist</button></div><div id="pvSafetyMessage" class="pv-note" style="margin-top:8px"></div></section>
+        <section class="pv-module"><h3>⚡ Assistant technique PV <span class="pv-badge">Fiches pratiques</span></h3><div class="field"><label for="pvTechTopic">Sujet</label><select id="pvTechTopic"><option value="structure">Structures et fixations</option><option value="panels">Pose des panneaux</option><option value="dc">Câblage DC</option><option value="inverter">Onduleur</option><option value="ac">Raccordement AC</option><option value="commission">Mise en service</option><option value="fault">Diagnostic de panne</option><option value="sav">Maintenance et SAV</option></select></div><button class="btn btn-gold" onclick="pvShowTech()">Afficher la fiche</button><div id="pvTechResult" class="pv-callout">Choisis un sujet pour afficher les points de contrôle.</div><div class="pv-callout"><strong>⚠️ Sécurité :</strong> toute opération électrique doit être réalisée uniquement selon les procédures applicables, par une personne formée, habilitée et autorisée. En cas de doute, arrêter et escalader.</div></section>
+        <section class="pv-module"><h3>🎓 Formation chef d’équipe <span class="pv-badge">Progression</span></h3><p class="pv-note">Coche les compétences travaillées pour suivre ton parcours vers responsable technique.</p><div id="pvTrainingList"></div><div class="pv-progress"><span id="pvTrainingBar" style="width:0%"></span></div><div class="pv-note" id="pvTrainingText" style="margin-top:8px"></div></section>
+        <section class="pv-module"><h3>📄 Compte rendu de chantier <span class="pv-badge">Rapport</span></h3><div class="field"><label for="pvReportJob">Chantier</label><select id="pvReportJob"></select></div><div class="field"><label for="pvReportDone">Travaux réalisés</label><textarea id="pvReportDone" rows="2" placeholder="Pose, câblage, contrôles…"></textarea></div><div class="field"><label for="pvReportIssues">Difficultés / réserves</label><textarea id="pvReportIssues" rows="2" placeholder="Matériel manquant, anomalie…"></textarea></div><div class="field"><label for="pvReportNext">Prochaine étape</label><textarea id="pvReportNext" rows="2" placeholder="Actions à prévoir…"></textarea></div><div class="pv-actions"><button class="btn btn-gold" onclick="pvGenerateReport()">Générer le rapport</button><button class="btn btn-dark" onclick="pvPrintReport()">Imprimer / PDF</button></div><div id="pvReportPreview" class="pv-callout" style="display:none"></div></section>
+        <section class="pv-module"><h3>🧭 Briefing de la journée <span class="pv-badge">Organisation</span></h3><div class="field"><label for="pvBriefing">Priorités et répartition</label><textarea id="pvBriefing" rows="5" placeholder="1. Briefing sécurité\n2. Répartition des tâches\n3. Contrôle matériel\n4. Vérifications fin de chantier"></textarea></div><button class="btn btn-dark" onclick="pvSaveBriefing()">Enregistrer le briefing</button><p class="pv-note" id="pvBriefingMsg"></p><div class="pv-callout">Conseil : commence chaque journée par les risques, les objectifs, les rôles, le matériel critique et les critères de fin de chantier.</div></section>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -257,6 +300,7 @@ select option{background:#191919}
     <button class="nav-btn" data-page="stats" onclick="openPage('stats')"><span class="nav-icon">▥</span><span>Statistiques</span></button>
     <button class="nav-btn" data-page="export" onclick="openPage('export')"><span class="nav-icon">▤</span><span>Export</span></button>
     <button class="nav-btn" data-page="settings" onclick="openPage('settings')"><span class="nav-icon">⚙</span><span>Paramètres</span></button>
+    <button class="nav-btn" data-page="chef" onclick="openPage('chef')"><span class="nav-icon">☀</span><span>Chef PV</span></button>
   </div>
 </nav>
 <div class="toast" id="toast" role="status"></div>
@@ -467,6 +511,53 @@ document.getElementById("filterTech").addEventListener("change",renderHistorique
 document.getElementById("filterMonth").addEventListener("change",renderHistorique);
 document.getElementById("date").value=new Date().toLocaleDateString("en-CA");
 lireDonnees();render();
+
+// ---------------- Extension Chef PV (données séparées des heures HS) ----------------
+const PV_KEY='hs_solami_chef_pv_v1';
+const PV_DEFAULT={jobs:[],people:[{id:1,name:'Joan',role:'Chef d’équipe',status:'Disponible'}],materials:[{id:1,name:'Panneaux photovoltaïques',qty:'À confirmer',ready:false},{id:2,name:'Rails et fixations',qty:'À confirmer',ready:false},{id:3,name:'Connecteurs et câble DC',qty:'À confirmer',ready:false},{id:4,name:'Onduleur / protections AC',qty:'À confirmer',ready:false}],safety:['Plan de prévention / consignes consultés','EPI adaptés et en bon état','Accès et protection contre les chutes vérifiés','Météo et conditions de travail vérifiées','Zone de travail sécurisée et balisée','Risques électriques identifiés et procédures prévues','Briefing sécurité réalisé avec l’équipe'],safetyDone:[],training:[{name:'Organiser une équipe',done:false},{name:'Communiquer et faire un briefing',done:false},{name:'Gérer les imprévus',done:false},{name:'Contrôler la qualité',done:false},{name:'Leadership et responsabilités',done:false},{name:'Lire plans et schémas',done:false},{name:'Préparer matériel et planning',done:false},{name:'Normes et procédures',done:false}],briefing:''};
+let pvDB;try{pvDB=JSON.parse(localStorage.getItem(PV_KEY))||JSON.parse(JSON.stringify(PV_DEFAULT))}catch(e){pvDB=JSON.parse(JSON.stringify(PV_DEFAULT))}
+function pvSave(){localStorage.setItem(PV_KEY,JSON.stringify(pvDB));pvRender()}
+function pvEsc(x){return safe(x)}
+function pvRender(){
+ const jn=document.getElementById('pvJobsList'),tn=document.getElementById('pvTeamList'),mn=document.getElementById('pvMaterialList');if(!jn)return;
+ document.getElementById('pvStatJobs').textContent=pvDB.jobs.length;document.getElementById('pvStatTeam').textContent=pvDB.people.length;
+ const ready=pvDB.materials.filter(x=>x.ready).length;document.getElementById('pvStatMaterial').textContent=(pvDB.materials.length?Math.round(ready/pvDB.materials.length*100):0)+'%';
+ const td=pvDB.training.filter(x=>x.done).length,tp=Math.round(td/pvDB.training.length*100);document.getElementById('pvStatTraining').textContent=tp+'%';document.getElementById('pvTrainingBar').style.width=tp+'%';document.getElementById('pvTrainingText').textContent=`${td}/${pvDB.training.length} modules terminés.`;
+ jn.innerHTML=pvDB.jobs.length?pvDB.jobs.map(j=>`<div class="pv-row"><div class="pv-row-main"><strong>${pvEsc(j.name)} <span class="pv-badge">${pvEsc(j.status)}</span></strong><small>${pvEsc(j.place||'Lieu à préciser')} · ${pvEsc(j.power||0)} kWc · ${pvEsc(j.panels||0)} panneaux</small>${j.notes?`<small>${pvEsc(j.notes)}</small>`:''}</div><button class="icon-btn delete" onclick="pvDeleteJob(${j.id})">×</button></div>`).join(''):'<div class="empty">Aucun chantier ajouté. Crée ton premier chantier ci-dessus.</div>';
+ tn.innerHTML=pvDB.people.map(p=>`<div class="pv-row"><div class="pv-row-main"><strong>${pvEsc(p.name)}</strong><small>${pvEsc(p.role)}</small></div><select style="max-width:130px;padding:7px" onchange="pvPersonStatus(${p.id},this.value)">${['Disponible','Sur chantier','En pause','Absent'].map(v=>`<option ${p.status===v?'selected':''}>${v}</option>`).join('')}</select><button class="icon-btn delete" onclick="pvDeletePerson(${p.id})">×</button></div>`).join('')||'<div class="empty">Aucun membre enregistré.</div>';
+ mn.innerHTML=pvDB.materials.map(m=>`<label class="pv-check"><input type="checkbox" ${m.ready?'checked':''} onchange="pvToggleMaterial(${m.id},this.checked)"><span style="flex:1"><strong>${pvEsc(m.name)}</strong><br><span class="pv-note">${pvEsc(m.qty||'Quantité à confirmer')}</span></span><button type="button" class="icon-btn delete" onclick="pvDeleteMaterial(${m.id})">×</button></label>`).join('')||'<div class="empty">Liste matériel vide.</div>';
+ document.getElementById('pvSafetyList').innerHTML=pvDB.safety.map((x,i)=>`<label class="pv-check"><input type="checkbox" ${pvDB.safetyDone.includes(i)?'checked':''} onchange="pvToggleSafety(${i},this.checked)"><span>${pvEsc(x)}</span></label>`).join('');
+ document.getElementById('pvTrainingList').innerHTML=pvDB.training.map((x,i)=>`<label class="pv-check"><input type="checkbox" ${x.done?'checked':''} onchange="pvToggleTraining(${i},this.checked)"><span>${pvEsc(x.name)}</span><span class="pv-badge">${x.done?'Terminé':'À faire'}</span></label>`).join('');
+ const sel=document.getElementById('pvReportJob'),old=sel.value;sel.innerHTML=pvDB.jobs.map(j=>`<option value="${j.id}">${pvEsc(j.name)}</option>`).join('')||'<option value="">Aucun chantier</option>';if([...sel.options].some(o=>o.value===old))sel.value=old;
+ document.getElementById('pvBriefing').value=pvDB.briefing||'';
+}
+document.getElementById('pvJobForm').addEventListener('submit',e=>{e.preventDefault();pvDB.jobs.push({id:Date.now(),name:document.getElementById('pvJobName').value.trim(),place:document.getElementById('pvJobPlace').value.trim(),power:Number(document.getElementById('pvJobPower').value)||0,panels:Number(document.getElementById('pvJobPanels').value)||0,status:document.getElementById('pvJobStatus').value,notes:document.getElementById('pvJobNotes').value.trim()});e.target.reset();pvSave();showToast('Chantier ajouté')});
+document.getElementById('pvPersonForm').addEventListener('submit',e=>{e.preventDefault();pvDB.people.push({id:Date.now(),name:document.getElementById('pvPersonName').value.trim(),role:document.getElementById('pvPersonRole').value,status:document.getElementById('pvPersonStatus').value});e.target.reset();pvSave();showToast('Membre ajouté')});
+document.getElementById('pvMaterialForm').addEventListener('submit',e=>{e.preventDefault();pvDB.materials.push({id:Date.now(),name:document.getElementById('pvMaterialName').value.trim(),qty:document.getElementById('pvMaterialQty').value.trim(),ready:false});e.target.reset();pvSave();showToast('Matériel ajouté')});
+window.pvDeleteJob=id=>{if(confirm('Supprimer ce chantier de la liste Chef PV ?')){pvDB.jobs=pvDB.jobs.filter(x=>x.id!==id);pvSave()}};
+window.pvDeletePerson=id=>{if(confirm('Retirer ce membre de la liste Chef PV ?')){pvDB.people=pvDB.people.filter(x=>x.id!==id);pvSave()}};
+window.pvDeleteMaterial=id=>{pvDB.materials=pvDB.materials.filter(x=>x.id!==id);pvSave()};
+window.pvPersonStatus=(id,status)=>{let p=pvDB.people.find(x=>x.id===id);if(p)p.status=status;pvSave()};
+window.pvToggleMaterial=(id,v)=>{let m=pvDB.materials.find(x=>x.id===id);if(m)m.ready=v;pvSave()};
+window.pvToggleSafety=(i,v)=>{pvDB.safetyDone=v?[...new Set([...pvDB.safetyDone,i])]:pvDB.safetyDone.filter(x=>x!==i);pvRender()};
+window.pvSaveSafety=()=>{document.getElementById('pvSafetyMessage').textContent=`Checklist : ${pvDB.safetyDone.length}/${pvDB.safety.length} points cochés. Vérifie toujours les conditions réelles sur le chantier.`;showToast('Checklist actualisée')};
+window.pvToggleTraining=(i,v)=>{pvDB.training[i].done=v;pvSave()};
+window.pvSaveBriefing=()=>{pvDB.briefing=document.getElementById('pvBriefing').value;localStorage.setItem(PV_KEY,JSON.stringify(pvDB));document.getElementById('pvBriefingMsg').textContent='Briefing enregistré sur cet appareil.';showToast('Briefing enregistré')};
+const PV_TECH={
+ structure:['Structures et fixations','Vérifier les plans et prescriptions du fabricant, le support, le type de fixation, l’alignement et les points d’étanchéité. Contrôler les fixations selon les couples et méthodes prescrits.','Ne jamais improviser une fixation ou une solution d’étanchéité. Travail en hauteur : appliquer les protections prévues.'],
+ panels:['Pose des panneaux','Contrôler références et état des modules, manutentionner selon la notice, respecter les zones de serrage et les couples prescrits, puis effectuer le contrôle visuel.','Ne pas poser un module endommagé sans procédure adaptée. Sécuriser la manutention et la toiture.'],
+ dc:['Câblage DC','Comparer le câblage au schéma, vérifier repérage, compatibilité des connecteurs, cheminement, protection mécanique et contrôles prescrits.','Les modules éclairés peuvent produire une tension. Intervention réservée aux personnes formées, habilitées et autorisées, selon procédure.'],
+ inverter:['Onduleur','Vérifier la référence, l’emplacement, les dégagements et la ventilation. Utiliser la notice fabricant pour paramètres et codes défauts ; consigner les contrôles réalisés.','Ne pas ouvrir ou intervenir sous tension sans habilitation, autorisation et procédure adaptées.'],
+ ac:['Raccordement AC','Suivre le schéma électrique, vérifier les protections, sections, repérage et contrôles exigés par le dossier et les règles applicables.','Toute opération électrique doit être faite par une personne habilitée et autorisée, selon la procédure de l’entreprise.'],
+ commission:['Mise en service','Vérifier que les contrôles préalables sont documentés, suivre la procédure fabricant, vérifier les protections et consigner les résultats.','Ne pas contourner une protection ni poursuivre si un contrôle critique échoue.'],
+ fault:['Diagnostic de panne','Relever le symptôme et le code exact, identifier le modèle, consulter la documentation officielle, noter l’historique et les résultats des contrôles autorisés.','Ne pas réarmer en boucle. Arrêter et escalader si le diagnostic implique un risque ou une opération non autorisée.'],
+ sav:['Maintenance et SAV','Collecter références, photos, date, circonstances et code défaut. Vérifier les garanties et la procédure fabricant, sécuriser la zone et documenter les actions.','Ne pas entreprendre de réparation risquée ou non autorisée ; contacter le responsable compétent.']};
+window.pvShowTech=()=>{let t=PV_TECH[document.getElementById('pvTechTopic').value];document.getElementById('pvTechResult').innerHTML=`<strong>${pvEsc(t[0])}</strong><br>${pvEsc(t[1])}<br><br><strong>Vigilance :</strong> ${pvEsc(t[2])}`};
+window.pvGenerateReport=()=>{let id=Number(document.getElementById('pvReportJob').value),j=pvDB.jobs.find(x=>x.id===id);let txt=`COMPTE RENDU DE CHANTIER\nChantier : ${j?j.name:'Non renseigné'}\nLieu : ${j?j.place:'—'}\nDate : ${new Date().toLocaleDateString('fr-FR')}\n\nTravaux réalisés :\n${document.getElementById('pvReportDone').value||'Non renseigné'}\n\nDifficultés / réserves :\n${document.getElementById('pvReportIssues').value||'Aucune renseignée'}\n\nProchaine étape :\n${document.getElementById('pvReportNext').value||'Non renseignée'}`;let el=document.getElementById('pvReportPreview');el.style.display='block';el.textContent=txt;el.dataset.report=txt};
+window.pvPrintReport=()=>{let el=document.getElementById('pvReportPreview');if(!el.dataset.report){pvGenerateReport()}let w=window.open('','_blank');if(!w){showToast('Autorise les fenêtres pop-up pour imprimer');return}w.document.write('<!doctype html><html lang="fr"><meta charset="utf-8"><title>Rapport chantier</title><style>body{font:15px Arial;white-space:pre-wrap;padding:28px;color:#111}</style><body>'+pvEsc(el.dataset.report||'')+'</body></html>');w.document.close();w.print()};
+// Le stockage Chef PV est séparé : les données de l'application d'heures existante sont conservées.
+const oldOpenPage=openPage;openPage=function(name){oldOpenPage(name);if(name==='chef')pvRender()};
+
 </script>
 </body>
 </html>
